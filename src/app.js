@@ -53,7 +53,10 @@ ws.addEventListener("message", () => {
         player.youtube.off(endev);
       }
       let ev = player.youtube.on("stateChange", event => {
-        if (event.data == PlayerState.PAUSED) {
+        if (
+          event.data == PlayerState.PAUSED ||
+          event.data == PlayerState.UNSTARTED
+        ) {
           let data = {
             sender: user.id,
             title: "voteDone"
