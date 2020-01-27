@@ -22,10 +22,11 @@ import { setfavurl } from "./test";
 setfavurl();
 */
 class Code {
-  constructor(_pid, _code, _title) {
+  constructor(_pid, _code, _title, _startSec) {
     this.code = _code;
     this.pid = _pid;
     this.title = _title;
+    this.startSec = _startSec;
   }
 }
 const msg = document.getElementById("btn");
@@ -66,12 +67,18 @@ ws.addEventListener("message", () => {
         }
       });
       ableStateChange(IntroState.MUTE);
-      console.log(`LOAD:${getStorage("video")[0].code}`);
-      player.youtube.loadVideoById(getStorage("video")[0].code, 0);
+      console.log(
+        `LOAD:${getStorage("video")[0].code},${getStorage("video")[0].startSec}`
+      );
+      player.youtube.loadVideoById(
+        getStorage("video")[0].code,
+        getStorage("video")[0].startSec
+      );
       tloadflg = false;
       break;
     case "voteEnd":
       let startTime = new Date(json.time).getTime() + user.lag;
+      startTime = startTime - getStorage("video")[0].startSec * 1000;
       playerStart(startTime);
       console.log(`START:${startTime}`);
       if (user.isHost) {
@@ -79,7 +86,7 @@ ws.addEventListener("message", () => {
         let store = {
           playing: true,
           code: code,
-          startTime: json.time
+          startTime: startTime - user.lag
         };
         setStorage("serverstats", store);
         pushStorage("videoLog", getStorage("video")[0]);
@@ -162,13 +169,22 @@ msg.addEventListener(
   () => {
     let codeValue = document.getElementById("msg").value;
     if (getParam("v", codeValue) != null) {
+      let startSec = getSec(document.getElementById("ssec").value);
+      ////startSec=0だと読み込んだ時に続きから始まる対策
+      startSec += 0.0001;
       youtubeDataApi(getParam("v", codeValue)).then(api => {
         pushStorage(
           "video",
-          new Code(user.id, api.items[0].id, api.items[0].snippet.title)
+          new Code(
+            user.id,
+            api.items[0].id,
+            api.items[0].snippet.title,
+            startSec
+          )
         );
       });
       document.getElementById("msg").value = "";
+      document.getElementById("ssec").value = "";
     }
   },
   false
@@ -220,4 +236,16 @@ function getParam(name, url) {
   if (!results) return null;
   if (!results[2]) return "";
   return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+function getSec(str) {
+  let splitTime = str.split(":").reverse();
+  const persec = [1, 60, 3600, 86400];
+  let result = 0;
+  for (let i = 0; i < splitTime.length; i++) {
+    if (parseFloat(splitTime[i]) == NaN) {
+      splitTime[i] = 0;
+    }
+    result += splitTime[i] * persec[i];
+  }
+  return parseFloat(result);
 }
