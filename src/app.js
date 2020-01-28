@@ -126,20 +126,20 @@ ws.addEventListener("message", () => {
 function viewVideoList() {
   document.getElementById("messages").innerHTML = "";
   getStorage("videoLog").forEach(function(log, i) {
-    document.getElementById(
-      "messages"
-    ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
-  });
-  getStorage("video").forEach(function(log, i) {
-    if (i == 0) {
+    if (i == getStorage("videoLog").length - 1) {
       document.getElementById(
         "messages"
-      ).innerHTML += `<div><B>NEXT</B>→<a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
+      ).innerHTML += `<div><B>PLAYING</B>→<a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
     } else {
       document.getElementById(
         "messages"
       ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
     }
+  });
+  getStorage("video").forEach(function(log, i) {
+    document.getElementById(
+      "messages"
+    ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
   });
 }
 function playerStart(time) {
