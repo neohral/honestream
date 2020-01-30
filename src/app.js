@@ -31,6 +31,11 @@ class Code {
 }
 const msg = document.getElementById("btn");
 const st = document.getElementById("startbtn");
+const reset = document.getElementById("resetbtn");
+const roop = document.getElementById("roop");
+const hostUi = document.getElementById("hostUi");
+hostUi.style.visibility = "hidden";
+st.style.visibility = "hidden";
 let playing = false;
 //途中loadキャンセルフラグ
 let tloadflg = false;
@@ -42,6 +47,7 @@ ws.addEventListener("message", () => {
   switch (json.title) {
     case "updateHost":
       voteStartCheck();
+      hostUi.style.visibility = "visible";
       break;
     case "sendCode":
       document.getElementById(
@@ -80,10 +86,18 @@ ws.addEventListener("message", () => {
       let startTime = new Date(json.time).getTime() + user.lag;
       startTime = startTime - getStorage("video")[0].startSec * 1000;
       playerStart(startTime);
+      if (user.isHost || getStorage("video")[0].pid == user.id) {
+        st.style.visibility = "visible";
+      } else {
+        st.style.visibility = "hidden";
+      }
+
       console.log(`START:${startTime}`);
       if (user.isHost) {
         let code = getStorage("video")[0].code;
+        let pid = getStorage("video")[0].pid;
         let store = {
+          pid: pid,
           playing: true,
           code: code,
           startTime: startTime - user.lag
@@ -121,6 +135,10 @@ ws.addEventListener("message", () => {
         voteStartCheck();
       }
       break;
+    case "skipReq":
+      if (user.isHost) {
+        skipVideo();
+      }
   }
 });
 function viewVideoList() {
@@ -189,17 +207,30 @@ msg.addEventListener(
   },
   false
 );
-st.addEventListener(
+st.addEventListener("click", skipVideo, false);
+function skipVideo() {
+  if (user.isHost) {
+    playing = false;
+    player.youtube.off(endev);
+    let store = {
+      playing: false
+    };
+    setStorage("serverstats", store);
+    voteStartCheck();
+  } else if (user.id == getStorage("serverstats")[0].pid) {
+    let data = {
+      sender: user.id,
+      title: "skipReq"
+    };
+    send(data);
+  }
+}
+reset.addEventListener(
   "click",
   () => {
     if (user.isHost) {
-      playing = false;
-      player.youtube.off(endev);
-      let store = {
-        playing: false
-      };
-      setStorage("serverstats", store);
-      voteStartCheck();
+      clearStorage("videoLog");
+      clearStorage("video");
     }
   },
   false
@@ -207,10 +238,7 @@ st.addEventListener(
 function voteStartCheck() {
   console.log(getStorage("video"));
   if (!playing) {
-    if (
-      getStorage("video").length == 0 &&
-      document.getElementById("roop").checked
-    ) {
+    if (getStorage("video").length == 0 && roop.checked) {
       getStorage("videoLog").forEach(function(log, i) {
         pushStorage("video", log);
       });
