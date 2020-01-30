@@ -48,6 +48,7 @@ ws.addEventListener("message", () => {
     case "updateHost":
       voteStartCheck();
       hostUi.style.visibility = "visible";
+      st.style.visibility = "visible";
       break;
     case "sendCode":
       document.getElementById(
