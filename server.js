@@ -141,6 +141,11 @@ userManagerSocket = function(wss) {
         getStorage("serverstats")[0].playing = false;
         isVoting = false;
       }
+      let borDate = {
+        sender: "server",
+        title: "logoutuser"
+      };
+      broadcast(borDate);
     });
     ws.on("message", function(message) {
       let json = JSON.parse(message);
@@ -162,7 +167,8 @@ function loginUser(ws) {
     title: "welcome",
     user: newcomer,
     userId: userId,
-    time: new Date().getTime()
+    time: new Date().getTime(),
+    playercnt: connections.length
   };
   ws.send(JSON.stringify(data));
   let borDate = {
