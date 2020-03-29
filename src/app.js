@@ -187,24 +187,17 @@ msg.addEventListener(
   "click",
   () => {
     let codeValue = document.getElementById("msg").value;
-    if (getParam("v", codeValue) != null) {
-      let startSec = getSec(document.getElementById("ssec").value);
-      ////startSec=0だと読み込んだ時に続きから始まる対策
-      startSec += 0.0001;
-      youtubeDataApi(getParam("v", codeValue)).then(api => {
-        pushStorage(
-          "video",
-          new Code(
-            user.id,
-            api.items[0].id,
-            api.items[0].snippet.title,
-            startSec
-          )
-        );
-      });
-      document.getElementById("msg").value = "";
-      document.getElementById("ssec").value = "";
-    }
+    let startSec = getSec(document.getElementById("ssec").value);
+    ////startSec=0だと読み込んだ時に続きから始まる対策
+    startSec += 0.0001;
+    youtubeDataApi(codeValue).then(api => {
+      pushStorage(
+        "video",
+        new Code(user.id, api.items[0].id, api.items[0].snippet.title, startSec)
+      );
+    });
+    document.getElementById("msg").value = "";
+    document.getElementById("ssec").value = "";
   },
   false
 );
@@ -257,15 +250,6 @@ function voteStartCheck() {
 /**
  * Common
  */
-function getParam(name, url) {
-  if (!url) url = window.location.href;
-  name = name.replace(/[\[\]]/g, "\\$&");
-  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-    results = regex.exec(url);
-  if (!results) return null;
-  if (!results[2]) return "";
-  return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
 function getSec(str) {
   let splitTime = str.split(":").reverse();
   const persec = [1, 60, 3600, 86400];

@@ -4,7 +4,7 @@ import { youtubeApiKey } from "./apikey";
 const youtubeDataApi = async code => {
   try {
     const api = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?id=${code}&key=${youtubeApiKey}&part=snippet,contentDetails`
+      `https://www.googleapis.com/youtube/v3/search?type=video&part=snippet&q=${code}&key=${youtubeApiKey}`
     ).then(res => res.json());
     let data = {
       sender: user.id,
