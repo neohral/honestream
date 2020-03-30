@@ -179,7 +179,7 @@ function playerStart(time) {
   playing = true;
 }
 
-let re = /( |　)+/;
+let re = /^( |　)*$/g;
 msg.addEventListener(
   "click",
   () => {
