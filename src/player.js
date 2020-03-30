@@ -24,7 +24,7 @@ let player = {
 document.getElementById("volume").addEventListener("change", setvol, false);
 document.getElementById("volume").addEventListener("input", setvol, false);
 player.youtube.getVolume().then(value => {
-  document.getElementById("volume").value = value;
+  setvol(1);
 });
 function setvol() {
   player.youtube.setVolume(document.getElementById("volume").value);
