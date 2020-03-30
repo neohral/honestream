@@ -10,7 +10,7 @@ const youtubeDataApi = async code => {
       sender: user.id,
       title: "sendCode",
       videoTitle: api.items[0].snippet.title,
-      code: api.items[0].id
+      code: api.items[0].id.videoId
     };
     send(data);
     return api;

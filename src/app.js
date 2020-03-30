@@ -191,9 +191,16 @@ msg.addEventListener(
     ////startSec=0だと読み込んだ時に続きから始まる対策
     startSec += 0.0001;
     youtubeDataApi(codeValue).then(api => {
+      console.log(api.items[0]);
+      console.log(api.items[0].id);
       pushStorage(
         "video",
-        new Code(user.id, api.items[0].id, api.items[0].snippet.title, startSec)
+        new Code(
+          user.id,
+          api.items[0].id.videoId,
+          `${api.items[0].snippet.title} 🦴${codeValue}🦴`,
+          startSec
+        )
       );
     });
     document.getElementById("msg").value = "";
