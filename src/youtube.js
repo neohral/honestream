@@ -6,13 +6,6 @@ const youtubeDataApi = async code => {
     const api = await fetch(
       `https://www.googleapis.com/youtube/v3/search?type=video&part=snippet&q=${code}&key=${youtubeApiKey}`
     ).then(res => res.json());
-    let data = {
-      sender: user.id,
-      title: "sendCode",
-      videoTitle: api.items[0].snippet.title,
-      code: api.items[0].id.videoId
-    };
-    send(data);
     return api;
   } catch (e) {
     console.error(e);

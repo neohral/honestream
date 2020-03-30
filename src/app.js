@@ -50,11 +50,6 @@ ws.addEventListener("message", () => {
       hostUi.style.visibility = "visible";
       st.style.visibility = "visible";
       break;
-    case "sendCode":
-      document.getElementById(
-        "messages"
-      ).innerHTML += `<div>${json.videoTitle}</div>`;
-      break;
     case "voteStart":
       if (playing) {
         playing = false;
@@ -183,6 +178,8 @@ function playerStart(time) {
   startPlayer(time);
   playing = true;
 }
+
+let re = /( |　)+/;
 msg.addEventListener(
   "click",
   () => {
@@ -190,19 +187,27 @@ msg.addEventListener(
     let startSec = getSec(document.getElementById("ssec").value);
     ////startSec=0だと読み込んだ時に続きから始まる対策
     startSec += 0.0001;
-    youtubeDataApi(codeValue).then(api => {
-      console.log(api.items[0]);
-      console.log(api.items[0].id);
-      pushStorage(
-        "video",
-        new Code(
-          user.id,
-          api.items[0].id.videoId,
-          `${api.items[0].snippet.title} 🦴${codeValue}🦴`,
-          startSec
-        )
-      );
-    });
+    if (codeValue != "" && !re.test(codeValue)) {
+      youtubeDataApi(codeValue).then(api => {
+        console.log(api);
+        if (api.items.length != 0) {
+          console.log(api.items[0].id);
+          pushStorage(
+            "video",
+            new Code(
+              user.id,
+              api.items[0].id.videoId,
+              `${api.items[0].snippet.title} 🦴${codeValue}🦴`,
+              startSec
+            )
+          );
+        } else {
+          alert(`ふええ一件もヒットしないよう[${codeValue}]`);
+        }
+      });
+    } else {
+      alert(`ふええリンクか検索ワードを入れてよお`);
+    }
     document.getElementById("msg").value = "";
     document.getElementById("ssec").value = "";
   },
