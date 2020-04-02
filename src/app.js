@@ -82,6 +82,7 @@ ws.addEventListener("message", () => {
       let startTime = new Date(json.time).getTime() + user.lag;
       startTime = startTime - getStorage("video")[0].startSec * 1000;
       playerStart(startTime);
+      setTweetButton(`${getStorage("video")[0].title.split("🦴")[0]}`);
       if (user.isHost || getStorage("video")[0].pid == user.id) {
         st.style.visibility = "visible";
       } else {
@@ -273,4 +274,19 @@ function getSec(str) {
     result += splitTime[i] * persec[i];
   }
   return parseFloat(result);
+}
+function setTweetButton(text) {
+  //$("#tweet-area").empty(); //既存のボタン消す
+  let as = document.getElementById("tweet-area");
+  while (as.firstChild) {
+    as.removeChild(as.firstChild);
+  }
+  // htmlでスクリプトを読んでるからtwttがエラーなく呼べる
+  // オプションは公式よんで。
+  twttr.widgets.createShareButton("", document.getElementById("tweet-area"), {
+    url: "http://honepr.f5.si:3000",
+    size: "nomal", //ボタンはでかく
+    text: text, // 狙ったテキスト
+    hashtags: "ほねすとり～む" // URL
+  });
 }
