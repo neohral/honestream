@@ -283,10 +283,13 @@ function setTweetButton(text) {
   }
   // htmlでスクリプトを読んでるからtwttがエラーなく呼べる
   // オプションは公式よんで。
-  twttr.widgets.createShareButton("", document.getElementById("tweet-area"), {
-    url: "http://honepr.f5.si:3000",
-    size: "nomal", //ボタンはでかく
-    text: text, // 狙ったテキスト
-    hashtags: "ほねすとり～む" // URL
-  });
+  twttr.widgets.createShareButton(
+    "http://honepr.f5.si",
+    document.getElementById("tweet-area"),
+    {
+      size: "nomal", //ボタンはでかく
+      text: text, // 狙ったテキスト
+      hashtags: "ほねすとり～む" // URL
+    }
+  );
 }
