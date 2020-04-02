@@ -22,10 +22,11 @@ import { setfavurl } from "./test";
 setfavurl();
 */
 class Code {
-  constructor(_pid, _code, _title, _startSec) {
+  constructor(_pid, _code, _title, _search, _startSec) {
     this.code = _code;
     this.pid = _pid;
     this.title = _title;
+    this.search = _search;
     this.startSec = _startSec;
   }
 }
@@ -82,7 +83,6 @@ ws.addEventListener("message", () => {
       let startTime = new Date(json.time).getTime() + user.lag;
       startTime = startTime - getStorage("video")[0].startSec * 1000;
       playerStart(startTime);
-      setTweetButton(`${getStorage("video")[0].title.split("🦴")[0]}`);
       if (user.isHost || getStorage("video")[0].pid == user.id) {
         st.style.visibility = "visible";
       } else {
@@ -159,6 +159,7 @@ function viewVideoList() {
 }
 function playerStart(time) {
   ableStateChange(IntroState.PLAYING);
+  setTweetButton(`${getStorage("video")[0].title.split("🦴")[0]}`);
   endev = player.youtube.on("stateChange", event => {
     //プレイヤー終了
     if (event.data == PlayerState.ENDED) {
@@ -199,6 +200,7 @@ msg.addEventListener(
               user.id,
               api.items[0].id.videoId,
               `${api.items[0].snippet.title} 🦴${codeValue}🦴`,
+              codeValue,
               startSec
             )
           );
@@ -276,20 +278,17 @@ function getSec(str) {
   return parseFloat(result);
 }
 function setTweetButton(text) {
-  //$("#tweet-area").empty(); //既存のボタン消す
   let as = document.getElementById("tweet-area");
   while (as.firstChild) {
     as.removeChild(as.firstChild);
   }
-  // htmlでスクリプトを読んでるからtwttがエラーなく呼べる
-  // オプションは公式よんで。
   twttr.widgets.createShareButton(
     "http://honepr.f5.si",
     document.getElementById("tweet-area"),
     {
-      size: "nomal", //ボタンはでかく
-      text: text, // 狙ったテキスト
-      hashtags: "ほねすとり～む" // URL
+      size: "nomal",
+      text: text,
+      hashtags: "ほねすとり～む"
     }
   );
 }
