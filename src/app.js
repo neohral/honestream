@@ -4,7 +4,7 @@ import {
   IntroState,
   PlayerState,
   state,
-  startPlayer
+  startPlayer,
 } from "./player";
 import { youtubeDataApi } from "./youtube";
 import { ws, send } from "./websoket";
@@ -15,7 +15,7 @@ import {
   removeStorage,
   updateStorage,
   clearStorage,
-  setStorage
+  setStorage,
 } from "./storage";
 /*デバッグ用
 import { setfavurl } from "./test";
@@ -56,14 +56,14 @@ ws.addEventListener("message", () => {
         playing = false;
         player.youtube.off(endev);
       }
-      let ev = player.youtube.on("stateChange", event => {
+      let ev = player.youtube.on("stateChange", (event) => {
         if (
           event.data == PlayerState.PAUSED ||
           event.data == PlayerState.UNSTARTED
         ) {
           let data = {
             sender: user.id,
-            title: "voteDone"
+            title: "voteDone",
           };
           send(data);
           player.youtube.off(ev);
@@ -82,6 +82,7 @@ ws.addEventListener("message", () => {
     case "voteEnd":
       let startTime = new Date(json.time).getTime() + user.lag;
       startTime = startTime - getStorage("video")[0].startSec * 1000;
+      setTweetButton(`${getStorage("video")[0].title.split("🦴")[0]}`);
       playerStart(startTime);
       if (user.isHost || getStorage("video")[0].pid == user.id) {
         st.style.visibility = "visible";
@@ -92,12 +93,14 @@ ws.addEventListener("message", () => {
       console.log(`START:${startTime}`);
       if (user.isHost) {
         let code = getStorage("video")[0].code;
+        let title = getStorage("video")[0].title;
         let pid = getStorage("video")[0].pid;
         let store = {
           pid: pid,
           playing: true,
           code: code,
-          startTime: startTime - user.lag
+          startTime: startTime - user.lag,
+          title: title,
         };
         setStorage("serverstats", store);
         pushStorage("videoLog", getStorage("video")[0]);
@@ -116,12 +119,15 @@ ws.addEventListener("message", () => {
           startSec
         );
         tloadflg = true;
-        let ev = player.youtube.on("stateChange", event => {
+        let ev = player.youtube.on("stateChange", (event) => {
           if (
             event.data == PlayerState.PAUSED ||
             event.data == PlayerState.UNSTARTED
           ) {
             if (tloadflg) {
+              setTweetButton(
+                `${getStorage("serverstats")[0].title.split("🦴")[0]}`
+              );
               playerStart(startTime);
             }
             player.youtube.off(ev);
@@ -140,18 +146,19 @@ ws.addEventListener("message", () => {
 });
 function viewVideoList() {
   document.getElementById("messages").innerHTML = "";
-  getStorage("videoLog").forEach(function(log, i) {
+  getStorage("videoLog").forEach(function (log, i) {
     if (i == getStorage("videoLog").length - 1) {
       document.getElementById(
         "messages"
       ).innerHTML += `<div><B>PLAYING</B>→<a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
+      console.log("nowSetTweetBtn");
     } else {
       document.getElementById(
         "messages"
       ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
     }
   });
-  getStorage("video").forEach(function(log, i) {
+  getStorage("video").forEach(function (log, i) {
     document.getElementById(
       "messages"
     ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
@@ -159,15 +166,14 @@ function viewVideoList() {
 }
 function playerStart(time) {
   ableStateChange(IntroState.PLAYING);
-  setTweetButton(`${getStorage("video")[0].title.split("🦴")[0]}`);
-  endev = player.youtube.on("stateChange", event => {
+  endev = player.youtube.on("stateChange", (event) => {
     //プレイヤー終了
     if (event.data == PlayerState.ENDED) {
       ableStateChange(IntroState.MUTE);
       playing = false;
       if (user.isHost) {
         let store = {
-          playing: false
+          playing: false,
         };
         setStorage("serverstats", store);
       }
@@ -190,7 +196,7 @@ msg.addEventListener(
     ////startSec=0だと読み込んだ時に続きから始まる対策
     startSec += 0.0001;
     if (codeValue != "" && !re.test(codeValue)) {
-      youtubeDataApi(codeValue).then(api => {
+      youtubeDataApi(codeValue).then((api) => {
         console.log(api);
         if (api.items.length != 0) {
           console.log(api.items[0].id);
@@ -222,14 +228,14 @@ function skipVideo() {
     playing = false;
     player.youtube.off(endev);
     let store = {
-      playing: false
+      playing: false,
     };
     setStorage("serverstats", store);
     voteStartCheck();
   } else if (user.id == getStorage("serverstats")[0].pid) {
     let data = {
       sender: user.id,
-      title: "skipReq"
+      title: "skipReq",
     };
     send(data);
   }
@@ -248,7 +254,7 @@ function voteStartCheck() {
   console.log(getStorage("video"));
   if (!playing) {
     if (getStorage("video").length == 0 && roop.checked) {
-      getStorage("videoLog").forEach(function(log, i) {
+      getStorage("videoLog").forEach(function (log, i) {
         pushStorage("video", log);
       });
       clearStorage("videoLog");
@@ -256,7 +262,7 @@ function voteStartCheck() {
     if (getStorage("video").length != 0) {
       let data = {
         sender: user.id,
-        title: "voteReq"
+        title: "voteReq",
       };
       send(data);
     }
@@ -288,7 +294,7 @@ function setTweetButton(text) {
     {
       size: "nomal",
       text: text,
-      hashtags: "ほねすとり～む"
+      hashtags: "ほねすとり～む",
     }
   );
 }
