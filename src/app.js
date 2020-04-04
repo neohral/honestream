@@ -82,25 +82,19 @@ ws.addEventListener("message", () => {
     case "voteEnd":
       let startTime = new Date(json.time).getTime() + user.lag;
       startTime = startTime - getStorage("video")[0].startSec * 1000;
-      setTweetButton(`${getStorage("video")[0].title.split("🦴")[0]}`);
+      setTweetButton(`${getStorage("video")[0].search}`);
       playerStart(startTime);
       if (user.isHost || getStorage("video")[0].pid == user.id) {
         st.style.visibility = "visible";
       } else {
         st.style.visibility = "hidden";
       }
-
       console.log(`START:${startTime}`);
       if (user.isHost) {
-        let code = getStorage("video")[0].code;
-        let title = getStorage("video")[0].title;
-        let pid = getStorage("video")[0].pid;
         let store = {
-          pid: pid,
-          playing: true,
-          code: code,
+          video: getStorage("video")[0],
           startTime: startTime - user.lag,
-          title: title,
+          playing: true,
         };
         setStorage("serverstats", store);
         pushStorage("videoLog", getStorage("video")[0]);
@@ -113,9 +107,11 @@ ws.addEventListener("message", () => {
         let startTime =
           new Date(getStorage("serverstats")[0].startTime).getTime() + user.lag;
         let startSec = (new Date().getTime() - startTime) / 1000;
-        console.log(`TLOAD:${getStorage("serverstats")[0].code},${startSec}`);
+        console.log(
+          `TLOAD:${getStorage("serverstats")[0].video.code},${startSec}`
+        );
         player.youtube.loadVideoById(
-          getStorage("serverstats")[0].code,
+          getStorage("serverstats")[0].video.code,
           startSec
         );
         tloadflg = true;
@@ -125,9 +121,7 @@ ws.addEventListener("message", () => {
             event.data == PlayerState.UNSTARTED
           ) {
             if (tloadflg) {
-              setTweetButton(
-                `${getStorage("serverstats")[0].title.split("🦴")[0]}`
-              );
+              setTweetButton(getStorage("serverstats")[0].video.title);
               playerStart(startTime);
             }
             player.youtube.off(ev);
@@ -150,18 +144,18 @@ function viewVideoList() {
     if (i == getStorage("videoLog").length - 1) {
       document.getElementById(
         "messages"
-      ).innerHTML += `<div><B>PLAYING</B>→<a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
+      ).innerHTML += `<div><B>PLAYING</B>→<a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title} 🦴${log.search}🦴</a></div>`;
       console.log("nowSetTweetBtn");
     } else {
       document.getElementById(
         "messages"
-      ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
+      ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title} 🦴${log.search}🦴</a></div>`;
     }
   });
   getStorage("video").forEach(function (log, i) {
     document.getElementById(
       "messages"
-    ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a></div>`;
+    ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title} 🦴${log.search}🦴</a></div>`;
   });
 }
 function playerStart(time) {
@@ -205,7 +199,7 @@ msg.addEventListener(
             new Code(
               user.id,
               api.items[0].id.videoId,
-              `${api.items[0].snippet.title} 🦴${codeValue}🦴`,
+              api.items[0].snippet.title,
               codeValue,
               startSec
             )
@@ -232,7 +226,7 @@ function skipVideo() {
     };
     setStorage("serverstats", store);
     voteStartCheck();
-  } else if (user.id == getStorage("serverstats")[0].pid) {
+  } else if (user.id == getStorage("serverstats")[0].video.pid) {
     let data = {
       sender: user.id,
       title: "skipReq",
