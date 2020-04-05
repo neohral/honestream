@@ -82,7 +82,7 @@ ws.addEventListener("message", () => {
     case "voteEnd":
       let startTime = new Date(json.time).getTime() + user.lag;
       startTime = startTime - getStorage("video")[0].startSec * 1000;
-      setTweetButton(`${getStorage("video")[0].search}`);
+      setTweetButton(`${getStorage("video")[0].title}`);
       playerStart(startTime);
       if (user.isHost || getStorage("video")[0].pid == user.id) {
         st.style.visibility = "visible";
