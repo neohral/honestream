@@ -6,7 +6,7 @@ import {
   state,
   startPlayer,
 } from "./player";
-import { youtubeDataApi } from "./youtube";
+import { youtubeSearchApi, youtubeDataApi } from "./youtube";
 import { ws, send } from "./websoket";
 import { user, receive } from "./userClient";
 import {
@@ -17,6 +17,7 @@ import {
   clearStorage,
   setStorage,
 } from "./storage";
+import { getParam, getSec } from "./commonLib";
 /*デバッグ用
 import { setfavurl } from "./test";
 setfavurl();
@@ -186,36 +187,53 @@ msg.addEventListener(
   "click",
   () => {
     let codeValue = document.getElementById("msg").value;
-    let startSec = getSec(document.getElementById("ssec").value);
     ////startSec=0だと読み込んだ時に続きから始まる対策
-    startSec += 0.0001;
     if (codeValue != "" && !re.test(codeValue)) {
-      youtubeDataApi(codeValue).then((api) => {
-        console.log(api);
-        if (api.items.length != 0) {
-          console.log(api.items[0].id);
-          pushStorage(
-            "video",
-            new Code(
-              user.id,
-              api.items[0].id.videoId,
-              api.items[0].snippet.title,
-              codeValue,
-              startSec
-            )
+      console.log(getParam("v", codeValue));
+      if (getParam("v", codeValue) != null) {
+        youtubeDataApi(getParam("v", codeValue)).then((api) => {
+          sendCode(
+            api,
+            `https://www.youtube.com/watch?v=${getParam("v", codeValue)}`,
+            getParam("v", codeValue)
           );
-        } else {
-          alert(`ふええ一件もヒットしないよう[${codeValue}]`);
-        }
-      });
+        });
+      } else {
+        youtubeSearchApi(codeValue).then((api) => {
+          sendCode(api, codeValue);
+        });
+      }
     } else {
       alert(`ふええリンクか検索ワードを入れてよお`);
     }
     document.getElementById("msg").value = "";
-    document.getElementById("ssec").value = "";
   },
   false
 );
+
+function sendCode(apiResult, codeValue, videoId = null) {
+  let startSec = getSec(document.getElementById("ssec").value);
+  startSec += 0.0001;
+  console.log(apiResult);
+  if (apiResult.items.length != 0) {
+    if (videoId == null) {
+      videoId = apiResult.items[0].id.videoId;
+    }
+    pushStorage(
+      "video",
+      new Code(
+        user.id,
+        videoId,
+        apiResult.items[0].snippet.title,
+        codeValue,
+        startSec
+      )
+    );
+  } else {
+    alert(`ふええ一件もヒットしないよう[${codeValue}]`);
+  }
+  document.getElementById("ssec").value = "";
+}
 st.addEventListener("click", skipVideo, false);
 function skipVideo() {
   if (user.isHost) {
@@ -261,21 +279,6 @@ function voteStartCheck() {
       send(data);
     }
   }
-}
-/**
- * Common
- */
-function getSec(str) {
-  let splitTime = str.split(":").reverse();
-  const persec = [1, 60, 3600, 86400];
-  let result = 0;
-  for (let i = 0; i < splitTime.length; i++) {
-    if (parseFloat(splitTime[i]) == NaN) {
-      splitTime[i] = 0;
-    }
-    result += splitTime[i] * persec[i];
-  }
-  return parseFloat(result);
 }
 function setTweetButton(text) {
   let as = document.getElementById("tweet-area");
