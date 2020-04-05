@@ -1,5 +1,5 @@
 /**
- *
+ * URLからパラメータの値を取得する
  * @param {取得するパラメータ} name
  * @param {URL} url
  */
@@ -13,7 +13,7 @@ function getParam(name, url) {
   return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 /**
- *
+ * コンマ区切りの時間から秒を出力
  * @param {:区切りの時間} str
  */
 function getSec(str) {

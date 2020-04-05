@@ -45,7 +45,7 @@ let endev;
 receive(ws);
 ws.addEventListener("message", () => {
   let json = JSON.parse(event.data);
-  console.log(`[LOG}message:${json.title}`);
+  //console.log(`[LOG}message:${json.title}`);
   switch (json.title) {
     case "updateHost":
       voteStartCheck();
@@ -90,7 +90,6 @@ ws.addEventListener("message", () => {
       } else {
         st.style.visibility = "hidden";
       }
-      console.log(`START:${startTime}`);
       if (user.isHost) {
         let store = {
           video: getStorage("video")[0],
@@ -145,18 +144,17 @@ function viewVideoList() {
     if (i == getStorage("videoLog").length - 1) {
       document.getElementById(
         "messages"
-      ).innerHTML += `<div><B>PLAYING</B>→<a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title} 🦴${log.search}🦴</a></div>`;
-      console.log("nowSetTweetBtn");
+      ).innerHTML += `<div><B>PLAYING</B>→<a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a> 🦴${log.search}🦴</div>`;
     } else {
       document.getElementById(
         "messages"
-      ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title} 🦴${log.search}🦴</a></div>`;
+      ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a> 🦴${log.search}🦴</div>`;
     }
   });
   getStorage("video").forEach(function (log, i) {
     document.getElementById(
       "messages"
-    ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title} 🦴${log.search}🦴</a></div>`;
+    ).innerHTML += `<div><a href= "https://www.youtube.com/watch?v=${log.code}" target="_blank">${log.title}</a>🦴${log.search}🦴</div>`;
   });
 }
 function playerStart(time) {
@@ -189,7 +187,6 @@ msg.addEventListener(
     let codeValue = document.getElementById("msg").value;
     ////startSec=0だと読み込んだ時に続きから始まる対策
     if (codeValue != "" && !re.test(codeValue)) {
-      console.log(getParam("v", codeValue));
       if (getParam("v", codeValue) != null) {
         youtubeDataApi(getParam("v", codeValue)).then((api) => {
           sendCode(
@@ -214,7 +211,6 @@ msg.addEventListener(
 function sendCode(apiResult, codeValue, videoId = null) {
   let startSec = getSec(document.getElementById("ssec").value);
   startSec += 0.0001;
-  console.log(apiResult);
   if (apiResult.items.length != 0) {
     if (videoId == null) {
       videoId = apiResult.items[0].id.videoId;
@@ -235,6 +231,10 @@ function sendCode(apiResult, codeValue, videoId = null) {
   document.getElementById("ssec").value = "";
 }
 st.addEventListener("click", skipVideo, false);
+player.youtube.on("error", (event) => {
+  console.log(`[LOG]:playerError->${event.data}`);
+  skipVideo();
+});
 function skipVideo() {
   if (user.isHost) {
     playing = false;
@@ -263,7 +263,6 @@ reset.addEventListener(
   false
 );
 function voteStartCheck() {
-  console.log(getStorage("video"));
   if (!playing) {
     if (getStorage("video").length == 0 && roop.checked) {
       getStorage("videoLog").forEach(function (log, i) {
@@ -280,6 +279,10 @@ function voteStartCheck() {
     }
   }
 }
+/**
+ * ツイートボタンを作成する
+ * @param {ツイートする際のメッセージ} text
+ */
 function setTweetButton(text) {
   let as = document.getElementById("tweet-area");
   while (as.firstChild) {
