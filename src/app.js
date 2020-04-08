@@ -55,7 +55,9 @@ ws.addEventListener("message", () => {
     case "voteStart":
       if (playing) {
         playing = false;
-        player.youtube.off(endev);
+        if (endev != undefined) {
+          player.youtube.off(endev);
+        }
       }
       let ev = player.youtube.on("stateChange", (event) => {
         if (
@@ -238,7 +240,9 @@ player.youtube.on("error", (event) => {
 function skipVideo() {
   if (user.isHost) {
     playing = false;
-    player.youtube.off(endev);
+    if (endev != undefined) {
+      player.youtube.off(endev);
+    }
     let store = {
       playing: false,
     };
