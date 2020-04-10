@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>ほねすとり～む改二</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div id="name"><strong>login...</strong><br /></div>
@@ -10,17 +11,28 @@
     <form name="bar">
       <input id="volume" type="range" value="1" min="0" max="100" step="1" />
     </form>
-    <input type="text" value="" id="msg" size="40" />
-    <input type="text" value="" id="ssec" size="3" />
+    <input
+      type="text"
+      value=""
+      id="msg"
+      size="40"
+      placeholder="link or query"
+    />
+    <input type="text" value="" id="ssec" size="3" placeholder="delay" />
     <input type="button" value="send" id="btn" />
     <input type="button" value="skip" id="startbtn" />
     <div id="hostUi">
       <input type="button" value="reset" id="resetbtn" />
       <input type="checkbox" id="roop" />ループする
     </div>
+    <div id="tweet-area"><!-- ここにボタンができる--></div>
+    <script
+      src="https://platform.twitter.com/widgets.js"
+      charset="utf-8"
+    ></script>
     <br />
     <hr />
-    <div id="messages" />
+    <div id="messages" class="message" />
     <script src="dist/app.js"></script>
   </body>
 </html>

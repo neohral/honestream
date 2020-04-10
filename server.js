@@ -8,20 +8,20 @@ let WebSocketServer = require("ws").Server,
   app = express();
 app.use(express.static(__dirname + "/"));
 let server = http.createServer(app);
-let wss = new WebSocketServer({ server: server });
+let wss = new WebSocketServer({ server });
 
 //接続時
-wss.on("connection", function(ws) {
+wss.on("connection", function (ws) {
   sync_storage();
   //メッセージ送信時
-  ws.on("message", function(message) {
+  ws.on("message", function (message) {
     let json = JSON.parse(message);
     broadcast(json);
   });
 });
 function broadcast(message) {
   console.log(`[LOG]MESSAGE:${message.title},${message.sender},${message.id}`);
-  connections.forEach(function(con, i) {
+  connections.forEach(function (con, i) {
     let json = JSON.stringify(message);
     if (con.ws.readyState == 1) {
       con.ws.send(json);
@@ -35,14 +35,14 @@ function broadcast(message) {
         title: "sync_storage",
         sender: "server",
         id: "loginUser",
-        storages: JSON.stringify(storages)
+        storages: JSON.stringify(storages),
       };
       message.user.ws.send(JSON.stringify(data));
       //vote
       if (isVoting) {
         data = {
           sender: "server",
-          title: "voteStart"
+          title: "voteStart",
         };
         message.user.ws.send(JSON.stringify(data));
       }
@@ -76,7 +76,7 @@ function sync_storage() {
   let data = {
     title: "sync_storage",
     sender: "server",
-    storages: JSON.stringify(storages)
+    storages: JSON.stringify(storages),
   };
 
   broadcast(data);
@@ -84,7 +84,7 @@ function sync_storage() {
 
 function getStorage(id) {
   let storage = null;
-  storages.forEach(function(con, i) {
+  storages.forEach(function (con, i) {
     if (con.id == id) {
       storage = con;
     }
@@ -95,10 +95,10 @@ function getStorage(id) {
   }
   return storage.obj;
 }
-wss.on("connection", function(ws) {
+wss.on("connection", function (ws) {
   sync_storage();
   //メッセージ送信時
-  ws.on("message", function(message) {
+  ws.on("message", function (message) {
     let json = JSON.parse(message);
     switch (json.title) {
       case "storage_update":
@@ -123,13 +123,13 @@ class User {
 let id = 0;
 let connections = [];
 let hostId = -1;
-userManagerSocket = function(wss) {
-  wss.on("connection", function(ws) {
+userManagerSocket = function (wss) {
+  wss.on("connection", function (ws) {
     //login処理
     loginUser(ws);
     //logout処理
-    ws.on("close", function() {
-      connections = connections.filter(function(conn, i) {
+    ws.on("close", function () {
+      connections = connections.filter(function (conn, i) {
         if (conn.ws === ws) {
           logoutUser(conn);
           return false;
@@ -138,16 +138,17 @@ userManagerSocket = function(wss) {
       });
       updateHost();
       if (connections.length == 0) {
+        console.log("[そして誰もいなくなった]");
         getStorage("serverstats")[0].playing = false;
         isVoting = false;
       }
       let borDate = {
         sender: "server",
-        title: "logoutuser"
+        title: "logoutuser",
       };
       broadcast(borDate);
     });
-    ws.on("message", function(message) {
+    ws.on("message", function (message) {
       let json = JSON.parse(message);
       switch (json.title) {
         case "setLag":
@@ -168,14 +169,14 @@ function loginUser(ws) {
     user: newcomer,
     userId: userId,
     time: new Date().getTime(),
-    playercnt: connections.length
+    playercnt: connections.length,
   };
   ws.send(JSON.stringify(data));
   let borDate = {
     sender: "server",
     title: "loginuser",
     user: newcomer,
-    userId: userId
+    userId: userId,
   };
   broadcast(borDate);
   console.log(`[LOG]LOGIN USER:${userId}`);
@@ -194,7 +195,7 @@ function updateHost() {
     let data = {
       title: "updateHost",
       sender: "server",
-      userid: hostId
+      userid: hostId,
     };
     connections[0].ws.send(JSON.stringify(data));
     console.log(`[LOG]UPDATE HOST:${hostId}`);
@@ -202,7 +203,7 @@ function updateHost() {
 }
 function getUserByid(id) {
   let user;
-  connections.forEach(function(con, i) {
+  connections.forEach(function (con, i) {
     if (con.id == id) {
       user = con;
     }
@@ -217,9 +218,9 @@ function voteStart() {
   if (!isVoting) {
     let data = {
       sender: "server",
-      title: "voteStart"
+      title: "voteStart",
     };
-    connections.forEach(function(con, i) {
+    connections.forEach(function (con, i) {
       con.vote = false;
     });
     isVoting = true;
@@ -228,7 +229,7 @@ function voteStart() {
 }
 function voteCheck() {
   let endVote = true;
-  connections.forEach(function(con, i) {
+  connections.forEach(function (con, i) {
     console.log(`[log]CHECK:${con.id}:${con.vote}`);
     if (!con.vote) {
       endVote = false;
@@ -237,8 +238,8 @@ function voteCheck() {
   return endVote;
 }
 let timeoutObj;
-wss.on("connection", function(ws) {
-  ws.on("message", function(message) {
+wss.on("connection", function (ws) {
+  ws.on("message", function (message) {
     let json = JSON.parse(message);
     switch (json.title) {
       case "voteReq":
@@ -265,7 +266,7 @@ function voteEnd() {
     let data = {
       sender: "server",
       title: "voteEnd",
-      time: new Date().getTime()
+      time: new Date().getTime(),
     };
     isVoting = false;
     broadcast(data);

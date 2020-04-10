@@ -11,7 +11,7 @@ class Storage {
 let storages = [];
 function getStorage(id) {
   let storage = null;
-  storages.forEach(function(con, i) {
+  storages.forEach(function (con, i) {
     if (con.id == id) {
       storage = con;
     }
@@ -27,7 +27,6 @@ function pushStorage(id, object) {
   updateStorage(id);
 }
 function setStorage(id, object) {
-  console.log(getStorage(id)[0]);
   getStorage(id)[0] = object;
   updateStorage(id);
 }
@@ -44,7 +43,7 @@ function updateStorage(id) {
     title: "storage_update",
     sender: user.id,
     id: id,
-    storages: JSON.stringify(storages)
+    storages: JSON.stringify(storages),
   };
   send(data);
 }
@@ -53,7 +52,6 @@ ws.addEventListener("message", () => {
   switch (json.title) {
     case "sync_storage":
       storages = JSON.parse(json.storages);
-      console.log(storages);
       break;
   }
 });
@@ -64,5 +62,5 @@ export {
   updateStorage,
   setStorage,
   clearStorage,
-  storages
+  storages,
 };

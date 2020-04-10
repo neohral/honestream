@@ -7,23 +7,23 @@ const PlayerState = {
   PLAYING: 1,
   PAUSED: 2,
   BUFFERING: 3,
-  CUED: 5
+  CUED: 5,
 };
 const IntroState = {
   MUTE: 0,
   PLAYING: 1,
-  CUED: 2
+  CUED: 2,
 };
 let player = {
   youtube: youtubePlayer("player", {
     height: "390",
     width: "640",
-    videoId: "xkMdLcB_vNU"
-  })
+    videoId: "xkMdLcB_vNU",
+  }),
 };
 document.getElementById("volume").addEventListener("change", setvol, false);
 document.getElementById("volume").addEventListener("input", setvol, false);
-player.youtube.getVolume().then(value => {
+player.youtube.getVolume().then((value) => {
   setvol(1);
 });
 function setvol() {
@@ -31,8 +31,8 @@ function setvol() {
 }
 let state = IntroState.MUTE;
 const readyEvent = new Event("playerReady");
-player.youtube.on("stateChange", event => {
-  console.log(event.data);
+player.youtube.on("stateChange", (event) => {
+  //console.log(event.data);
   switch (state) {
     case IntroState.MUTE:
       if (event.data == PlayerState.PLAYING) {
@@ -53,9 +53,8 @@ player.youtube.on("stateChange", event => {
   }
 });
 
-let ableStateChange = states => {
+let ableStateChange = (states) => {
   state = states;
-  console.log(`[player]:${state}`);
 };
 let startTime;
 function startPlayer(time) {
