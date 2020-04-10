@@ -248,12 +248,14 @@ function skipVideo() {
     };
     setStorage("serverstats", store);
     voteStartCheck();
-  } else if (user.id == getStorage("serverstats")[0].video.pid) {
-    let data = {
-      sender: user.id,
-      title: "skipReq",
-    };
-    send(data);
+  } else if (getStorage("serverstats")[0].playing) {
+    if (user.id == getStorage("serverstats")[0].video.pid) {
+      let data = {
+        sender: user.id,
+        title: "skipReq",
+      };
+      send(data);
+    }
   }
 }
 reset.addEventListener(
