@@ -1,3 +1,5 @@
 .message {
   white-space: nowrap;
+  height: 132px;
+  overflow: scroll;
 }
