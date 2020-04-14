@@ -19,6 +19,10 @@ let player = {
     height: "390",
     width: "640",
     videoId: "xkMdLcB_vNU",
+    playerVars: {
+      disablekb: 1,
+      playsinline: 1,
+    },
   }),
 };
 document.getElementById("volume").addEventListener("change", setvol, false);
