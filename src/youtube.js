@@ -21,5 +21,18 @@ const youtubeDataApi = async (code) => {
     console.error(e);
   }
 };
+const youtubePlayListApi = async (code) => {
+  try {
+    console.log(
+      `https://www.googleapis.com/youtube/v3/playlistItems?playlistId=${code}&maxResults=50&part=snippet&key=${youtubeApiKey}`
+    );
+    const api = await fetch(
+      `https://www.googleapis.com/youtube/v3/playlistItems?playlistId=${code}&maxResults=50&part=snippet&key=${youtubeApiKey}`
+    ).then((res) => res.json());
+    return api;
+  } catch (e) {
+    console.error(e);
+  }
+};
 //youtubeDataApi('HWiyRHY-UsU');
-export { youtubeSearchApi, youtubeDataApi, send };
+export { youtubeSearchApi, youtubeDataApi, youtubePlayListApi, send };

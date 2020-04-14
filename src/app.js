@@ -6,7 +6,11 @@ import {
   state,
   startPlayer,
 } from "./player";
-import { youtubeSearchApi, youtubeDataApi } from "./youtube";
+import {
+  youtubeSearchApi,
+  youtubeDataApi,
+  youtubePlayListApi,
+} from "./youtube";
 import { ws, send } from "./websoket";
 import { user, receive } from "./userClient";
 import {
@@ -35,6 +39,7 @@ const msg = document.getElementById("btn");
 const st = document.getElementById("startbtn");
 const reset = document.getElementById("resetbtn");
 const roop = document.getElementById("roop");
+const playlist = document.getElementById("playlist");
 const hostUi = document.getElementById("hostUi");
 hostUi.style.visibility = "hidden";
 st.style.visibility = "hidden";
@@ -183,49 +188,74 @@ msg.addEventListener(
   "click",
   () => {
     let codeValue = document.getElementById("msg").value;
-    ////startSec=0だと読み込んだ時に続きから始まる対策
+    let errCode = -1;
     if (codeValue != "" && !re.test(codeValue)) {
-      if (getParam("v", codeValue) != null) {
+      if (playlist.checked && getParam("list", codeValue) != null) {
+        //playlistからの読み込み
+        youtubePlayListApi(getParam("list", codeValue)).then((api) => {
+          console.log(api.error);
+          if (api.error == undefined) {
+            if (api.items.length != 0) {
+              api.items.forEach(function (video, i) {
+                let url = `https://www.youtube.com/playlist?list=${getParam(
+                  "list",
+                  codeValue
+                )}`;
+                sendCode(
+                  video.snippet.resourceId.videoId,
+                  video.snippet.title,
+                  url
+                );
+              });
+            } else {
+              alert(`ふええ一件もヒットしないよう[${codeValue}]`);
+            }
+          } else {
+            alert(`ふええ一件もヒットしないよう[${codeValue}]`);
+          }
+        });
+      } else if (getParam("v", codeValue) != null) {
+        //idから読み込み
         youtubeDataApi(getParam("v", codeValue)).then((api) => {
-          sendCode(
-            api,
-            `https://www.youtube.com/watch?v=${getParam("v", codeValue)}`,
-            getParam("v", codeValue)
-          );
+          if (api.items.length != 0) {
+            sendCode(
+              getParam("v", codeValue),
+              api.items[0].snippet.title,
+              codeValue
+            );
+          } else {
+            alert(`ふええ一件もヒットしないよう[${codeValue}]`);
+          }
         });
       } else {
+        //検索
         youtubeSearchApi(codeValue).then((api) => {
-          sendCode(api, codeValue);
+          if (api.items.length != 0) {
+            sendCode(
+              api.items[0].id.videoId,
+              api.items[0].snippet.title,
+              codeValue
+            );
+          } else {
+            alert(`ふええ一件もヒットしないよう[${codeValue}]`);
+          }
         });
       }
     } else {
       alert(`ふええリンクか検索ワードを入れてよお`);
     }
     document.getElementById("msg").value = "";
+    playlist.checked = false;
   },
   false
 );
-
-function sendCode(apiResult, codeValue, videoId = null) {
+function sendCode(videoId, videoTitle, searchValue) {
   let startSec = getSec(document.getElementById("ssec").value);
   startSec += 0.0001;
-  if (apiResult.items.length != 0) {
-    if (videoId == null) {
-      videoId = apiResult.items[0].id.videoId;
-    }
-    pushStorage(
-      "video",
-      new Code(
-        user.id,
-        videoId,
-        apiResult.items[0].snippet.title,
-        codeValue,
-        startSec
-      )
-    );
-  } else {
-    alert(`ふええ一件もヒットしないよう[${codeValue}]`);
-  }
+  pushStorage(
+    "video",
+    new Code(user.id, videoId, videoTitle, searchValue, startSec)
+  );
   document.getElementById("ssec").value = "";
 }
 st.addEventListener("click", skipVideo, false);
