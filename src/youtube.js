@@ -23,9 +23,6 @@ const youtubeDataApi = async (code) => {
 };
 const youtubePlayListApi = async (code) => {
   try {
-    console.log(
-      `https://www.googleapis.com/youtube/v3/playlistItems?playlistId=${code}&maxResults=50&part=snippet&key=${youtubeApiKey}`
-    );
     const api = await fetch(
       `https://www.googleapis.com/youtube/v3/playlistItems?playlistId=${code}&maxResults=50&part=snippet&key=${youtubeApiKey}`
     ).then((res) => res.json());

@@ -46,11 +46,11 @@ st.style.visibility = "hidden";
 let playing = false;
 //途中loadキャンセルフラグ
 let tloadflg = false;
+let ableTload = true;
 let endev;
 receive(ws);
 ws.addEventListener("message", () => {
   let json = JSON.parse(event.data);
-  //console.log(`[LOG}message:${json.title}`);
   switch (json.title) {
     case "updateHost":
       voteStartCheck();
@@ -86,6 +86,7 @@ ws.addEventListener("message", () => {
         getStorage("video")[0].startSec
       );
       tloadflg = false;
+      ableTload = false;
       break;
     case "voteEnd":
       let startTime = new Date(json.time).getTime() + user.lag;
@@ -110,7 +111,7 @@ ws.addEventListener("message", () => {
       break;
     case "sync_storage":
       viewVideoList();
-      if (!playing & getStorage("serverstats")[0].playing) {
+      if (!playing & getStorage("serverstats")[0].playing & ableTload) {
         let startTime =
           new Date(getStorage("serverstats")[0].startTime).getTime() + user.lag;
         let startSec = (new Date().getTime() - startTime) / 1000;
@@ -130,6 +131,7 @@ ws.addEventListener("message", () => {
             if (tloadflg) {
               setTweetButton(getStorage("serverstats")[0].video.title);
               playerStart(startTime);
+              ableTload = false;
             }
             player.youtube.off(ev);
           }
@@ -188,12 +190,10 @@ msg.addEventListener(
   "click",
   () => {
     let codeValue = document.getElementById("msg").value;
-    let errCode = -1;
     if (codeValue != "" && !re.test(codeValue)) {
       if (playlist.checked && getParam("list", codeValue) != null) {
         //playlistからの読み込み
         youtubePlayListApi(getParam("list", codeValue)).then((api) => {
-          console.log(api.error);
           if (api.error == undefined) {
             if (api.items.length != 0) {
               api.items.forEach(function (video, i) {
