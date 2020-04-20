@@ -261,7 +261,9 @@ function sendCode(videoId, videoTitle, searchValue) {
 st.addEventListener("click", skipVideo, false);
 player.youtube.on("error", (event) => {
   console.log(`[LOG]:playerError->${event.data}`);
-  skipVideo();
+  setTimeout(() => {
+    skipVideo();
+  }, 1000);
 });
 function skipVideo() {
   if (user.isHost) {
@@ -297,10 +299,12 @@ reset.addEventListener(
 function voteStartCheck() {
   if (!playing) {
     if (getStorage("video").length == 0 && roop.checked) {
-      getStorage("videoLog").forEach(function (log, i) {
-        pushStorage("video", log);
-      });
-      clearStorage("videoLog");
+      if (getStorage("videoLog").length != 0) {
+        getStorage("videoLog").forEach(function (log, i) {
+          pushStorage("video", log);
+        });
+        clearStorage("videoLog");
+      }
     }
     if (getStorage("video").length != 0) {
       let data = {
