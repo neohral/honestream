@@ -137,7 +137,7 @@ ws.addEventListener("message", () => {
           }
         });
       }
-      if (user.isHost) {
+      if (user.isHost && json.id == "video") {
         voteStartCheck();
       }
       break;

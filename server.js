@@ -12,7 +12,7 @@ let wss = new WebSocketServer({ server });
 
 //接続時
 wss.on("connection", function (ws) {
-  sync_storage();
+  sync_storage("connect");
   //メッセージ送信時
   ws.on("message", function (message) {
     let json = JSON.parse(message);
@@ -70,12 +70,13 @@ let storages = [];
 function storage_update(json) {
   //console.log(`[LOG]STORAGE:${json.storages},${json.sender}`);
   storages = JSON.parse(json.storages);
-  sync_storage();
+  sync_storage(json.id);
 }
-function sync_storage() {
+function sync_storage(id) {
   let data = {
     title: "sync_storage",
     sender: "server",
+    id,
     storages: JSON.stringify(storages),
   };
 
@@ -96,7 +97,6 @@ function getStorage(id) {
   return storage.obj;
 }
 wss.on("connection", function (ws) {
-  sync_storage();
   //メッセージ送信時
   ws.on("message", function (message) {
     let json = JSON.parse(message);
