@@ -184,71 +184,67 @@ function playerStart(time) {
   startPlayer(time);
   playing = true;
 }
-
 let re = /^( |　)*$/g;
-msg.addEventListener(
-  "click",
-  () => {
-    let codeValue = document.getElementById("msg").value;
-    if (codeValue != "" && !re.test(codeValue)) {
-      if (playlist.checked && getParam("list", codeValue) != null) {
-        //playlistからの読み込み
-        youtubePlayListApi(getParam("list", codeValue)).then((api) => {
-          if (api.error == undefined) {
-            if (api.items.length != 0) {
-              api.items.forEach(function (video, i) {
-                let url = `https://www.youtube.com/playlist?list=${getParam(
-                  "list",
-                  codeValue
-                )}`;
-                sendCode(
-                  video.snippet.resourceId.videoId,
-                  video.snippet.title,
-                  url
-                );
-              });
-            } else {
-              alert(`ふええ一件もヒットしないよう[${codeValue}]`);
-            }
-          } else {
-            alert(`ふええ一件もヒットしないよう[${codeValue}]`);
-          }
-        });
-      } else if (getParam("v", codeValue) != null) {
-        //idから読み込み
-        youtubeDataApi(getParam("v", codeValue)).then((api) => {
+function clickSend() {
+  let codeValue = document.getElementById("msg").value;
+  if (codeValue != "" && !re.test(codeValue)) {
+    if (playlist.checked && getParam("list", codeValue) != null) {
+      //playlistからの読み込み
+      youtubePlayListApi(getParam("list", codeValue)).then((api) => {
+        if (api.error == undefined) {
           if (api.items.length != 0) {
-            sendCode(
-              getParam("v", codeValue),
-              api.items[0].snippet.title,
-              codeValue
-            );
+            api.items.forEach(function (video, i) {
+              let url = `https://www.youtube.com/playlist?list=${getParam(
+                "list",
+                codeValue
+              )}`;
+              sendCode(
+                video.snippet.resourceId.videoId,
+                video.snippet.title,
+                url
+              );
+            });
           } else {
             alert(`ふええ一件もヒットしないよう[${codeValue}]`);
           }
-        });
-      } else {
-        //検索
-        youtubeSearchApi(codeValue).then((api) => {
-          if (api.items.length != 0) {
-            sendCode(
-              api.items[0].id.videoId,
-              api.items[0].snippet.title,
-              codeValue
-            );
-          } else {
-            alert(`ふええ一件もヒットしないよう[${codeValue}]`);
-          }
-        });
-      }
+        } else {
+          alert(`ふええ一件もヒットしないよう[${codeValue}]`);
+        }
+      });
+    } else if (getParam("v", codeValue) != null) {
+      //idから読み込み
+      youtubeDataApi(getParam("v", codeValue)).then((api) => {
+        if (api.items.length != 0) {
+          sendCode(
+            getParam("v", codeValue),
+            api.items[0].snippet.title,
+            codeValue
+          );
+        } else {
+          alert(`ふええ一件もヒットしないよう[${codeValue}]`);
+        }
+      });
     } else {
-      alert(`ふええリンクか検索ワードを入れてよお`);
+      //検索
+      youtubeSearchApi(codeValue).then((api) => {
+        if (api.items.length != 0) {
+          sendCode(
+            api.items[0].id.videoId,
+            api.items[0].snippet.title,
+            codeValue
+          );
+        } else {
+          alert(`ふええ一件もヒットしないよう[${codeValue}]`);
+        }
+      });
     }
-    document.getElementById("msg").value = "";
-    playlist.checked = false;
-  },
-  false
-);
+  } else {
+    alert(`ふええリンクか検索ワードを入れてよお`);
+  }
+  document.getElementById("msg").value = "";
+  playlist.checked = false;
+}
+msg.addEventListener("click", clickSend, false);
 function sendCode(videoId, videoTitle, searchValue) {
   let startSec = getSec(document.getElementById("ssec").value);
   startSec += 0.0001;
@@ -258,6 +254,11 @@ function sendCode(videoId, videoTitle, searchValue) {
   );
   document.getElementById("ssec").value = "";
 }
+document.getElementById("inputForm").addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && event.ctrlKey) {
+    clickSend();
+  }
+});
 st.addEventListener("click", skipVideo, false);
 player.youtube.on("error", (event) => {
   console.log(`[LOG]:playerError->${event.data}`);
