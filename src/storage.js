@@ -26,6 +26,12 @@ function pushStorage(id, object) {
   getStorage(id).push(object);
   updateStorage(id);
 }
+function pushStorages(id, object) {
+  object.forEach(function (video, i) {
+    getStorage(id).push(video);
+  });
+  updateStorage(id);
+}
 function setStorage(id, object) {
   getStorage(id)[0] = object;
   updateStorage(id);
@@ -62,5 +68,6 @@ export {
   updateStorage,
   setStorage,
   clearStorage,
+  pushStorages,
   storages,
 };

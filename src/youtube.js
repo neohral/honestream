@@ -21,10 +21,16 @@ const youtubeDataApi = async (code) => {
     console.error(e);
   }
 };
-const youtubePlayListApi = async (code) => {
+const youtubePlayListApi = async (code, token) => {
+  let tokenValue;
+  if (token != null) {
+    tokenValue = `&pageToken=${token}`;
+  } else {
+    tokenValue = "";
+  }
   try {
     const api = await fetch(
-      `https://www.googleapis.com/youtube/v3/playlistItems?playlistId=${code}&maxResults=50&part=snippet&key=${youtubeApiKey}`
+      `https://www.googleapis.com/youtube/v3/playlistItems?playlistId=${code}&maxResults=50&part=snippet&key=${youtubeApiKey}${tokenValue}`
     ).then((res) => res.json());
     return api;
   } catch (e) {
