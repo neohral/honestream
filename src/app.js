@@ -362,7 +362,7 @@ function setTweetButton(text) {
     as.removeChild(as.firstChild);
   }
   twttr.widgets.createShareButton(
-    "http://honepr.f5.si",
+    location.href,
     document.getElementById("tweet-area"),
     {
       size: "nomal",
