@@ -41,6 +41,7 @@ const st = document.getElementById("startbtn");
 const reset = document.getElementById("resetbtn");
 const roop = document.getElementById("roop");
 const playlist = document.getElementById("playlist");
+const shuffle = document.getElementById("playlistshuffle");
 const hostUi = document.getElementById("hostUi");
 hostUi.style.visibility = "hidden";
 st.style.visibility = "hidden";
@@ -224,6 +225,15 @@ async function playlistget(codeValue) {
         )
       );
     });
+    if (shuffle.checked) {
+      for (var i = codes.length - 1; i > 0; i--) {
+        var r = Math.floor(Math.random() * (i + 1));
+        var tmp = codes[i];
+        codes[i] = codes[r];
+        codes[r] = tmp;
+      }
+    }
+    shuffle.checked = false;
     sendCodes(codes);
   }
 }
