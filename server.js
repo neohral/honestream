@@ -37,14 +37,14 @@ function broadcast(message) {
         id: "loginUser",
         storages: JSON.stringify(storages),
       };
-      message.user.ws.send(JSON.stringify(data));
+      getUserByid(message.userId).ws.send(JSON.stringify(data));
       //vote
       if (isVoting) {
         data = {
           sender: "server",
           title: "voteStart",
         };
-        message.user.ws.send(JSON.stringify(data));
+        getUserByid(message.userId).ws.send(JSON.stringify(data));
       }
       break;
     case "logoutUser":
@@ -111,9 +111,17 @@ wss.on("connection", function (ws) {
 /**
  * UserManager
  */
-class User {
+class UserWs {
   constructor(_ws, _id, _room, _name) {
     this.ws = _ws;
+    this.id = _id;
+    this.room = _room;
+    this.vote = false;
+    this.isHost = false;
+  }
+}
+class User {
+  constructor( _id, _room, _name) {
     this.id = _id;
     this.room = _room;
     this.vote = false;
@@ -162,8 +170,8 @@ userManagerSocket = function (wss) {
 function loginUser(ws) {
   id++;
   let userId = ("0000000000" + id).slice(-5);
-  let newcomer = new User(ws, userId, "common");
-  connections.push(newcomer);
+  connections.push(new UserWs(ws,userId, "common"));
+  let newcomer = new User(userId, "common");
   let data = {
     title: "welcome",
     user: newcomer,

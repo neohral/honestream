@@ -1,6 +1,5 @@
 class User {
-  constructor(_ws, _id, _room, _name) {
-    this.ws = _ws;
+  constructor(_id, _room, _name) {
     this.id = _id;
     this.room = _room;
     this.lag = 0;
@@ -14,7 +13,7 @@ let receive = ws => {
     let json = JSON.parse(event.data);
     switch (json.title) {
       case "welcome":
-        user = new User(json.user.ws, json.user.id, json.user.room, "noname");
+        user = new User(json.user.id, json.user.room, "noname");
         user.lag = new Date().getTime() - json.time;
         playercnt = json.playercnt - 1;
         let data = {
